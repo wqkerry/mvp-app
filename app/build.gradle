@@ -1,0 +1,100 @@
+apply plugin: 'com.android.application'
+
+def static releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'huanwang'
+            keyPassword 'huanwang'
+            storeFile file('../TvTentcentVideo.jks')
+            storePassword 'huanwang'
+            v2SigningEnabled false
+        }
+    }
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "tv.huan.tencentAuth"
+        minSdkVersion 17
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        flavorDimensions "default"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+            //正式接环境
+            buildConfigField("String", "BASE_SEVER_URL", "\"http://vqq.candytime.com.cn/api/\"") //接口地址
+            buildConfigField("boolean", "IS_DEBUG", "true") //日志
+        }
+        debug {
+            signingConfig signingConfigs.config
+//            测试环境
+            buildConfigField("String", "BASE_SEVER_URL", "\"http://vqqt.candytime.com.cn/upload/api/\"")
+            buildConfigField("boolean", "IS_DEBUG", "true")
+
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    //打包APK默认名称格式
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "Huan_v${variant.mergedFlavor.versionName}" +
+                    "_${variant.buildType.name}_${releaseTime()}.apk"
+        }
+    }
+
+    aaptOptions {
+        cruncherEnabled = false
+        useNewCruncher = false
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.alibaba:fastjson:1.1.70.android'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
+
+    implementation 'me.jessyan:autosize:1.1.2'
+    implementation 'cn.yipianfengye.android:zxing-library:2.2'
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    implementation 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+
+    implementation "io.reactivex.rxjava2:rxjava:2.2.10"
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+
+    implementation('com.github.ihsanbal:LoggingInterceptor:3.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    implementation "android.arch.persistence.room:rxjava2:1.1.1"
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+
+    implementation 'com.tv.boost:tv-recyclerview:1.1.0'
+    implementation('com.owen:tv-focusborder:1.0.8') {
+        exclude group: 'com.owen.tvrecyclerview'
+    }
+}
